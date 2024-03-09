@@ -166,7 +166,7 @@ const updateUser = asyncHandler(async(req, res) => {
     const response = await User.findByIdAndUpdate(_id, req.body, {new: true}).select('-password -role -refreshToken')
     return res.status(200).json({
         success: response ? true : false,
-        deleteUser: response? response: 'Some thing went wrong'
+        updatedUser: response? response: 'Some thing went wrong'
     })
 })
 
