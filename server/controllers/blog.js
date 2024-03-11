@@ -1,5 +1,5 @@
-const asyncHandler = require('express-async-handler');
-const Blog = require('../models/blog');
+const asyncHandler = require('express-async-handler')
+const Blog = require('../models/blog')
 
 const createNewBlog = asyncHandler(async (req, res) => {
     const { title, description, category } = req.body
@@ -93,6 +93,30 @@ const deleteBlog = asyncHandler(async (req, res) => {
         deletedBlog: blog || 'Something went wrong!'
     })
 })
+const uploadImagesBlog = asyncHandler(async (req, res) => {
+    try {
+        const { bid } = req.params
+        if (!bid) {
+            return res.status(400).json({
+                success: false, message: 'Missing blog ID'
+            })
+        }
+        if (!req.file) {
+            return res.status(400).json({
+                success: false, message: 'Missing inputs'
+            })
+        }
+        const response = await Blog.findByIdAndUpdate(bid, {image: req.file.path}, {new: true})
+        return res.status(200).json({
+            success: true, message: 'Upload Success', file: req.file
+        })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false, message: 'Can not Image blog'
+        })
+    }
+})
 
 
 module.exports = {
@@ -102,5 +126,6 @@ module.exports = {
     likeBlog,
     dislikeBlog,
     getBlog,
-    deleteBlog
+    deleteBlog,
+    uploadImagesBlog
 }

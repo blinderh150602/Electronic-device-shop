@@ -76,7 +76,6 @@ const getProducts = asyncHandler(async (req, res) => {
             products: response ? response : 'Cannot get products'
         })
     } catch (error) {
-        // Xử lý lỗi nếu có
         return res.status(500).json({
             success: false,
             message: error.message
@@ -143,16 +142,22 @@ const ratings = asyncHandler(async (req, res) => {
     })
 })
 const uploadImagesProduct = asyncHandler(async (req, res) => {
+    const {pid} = req.params
     try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: 'Không tìm thấy tệp hình ảnh' })
+        if (!req.files) {
+            return res.status(400).json({ 
+                success: false, message: 'Missing inputs' 
+            })
         }
-        // Trả về phản hồi thành công
-        return res.status(200).json({ success: true, message: 'Upload thành công', file: req.file })
+        const response = await Product.findByIdAndUpdate(pid, { $push: {images:{$each: req.files.map(el => el.path)}}}, {new: true})
+        return res.status(200).json({ 
+            success: true, message: 'Upload Success', files: req.files 
+        })
     } catch (error) {
-        // Xử lý lỗi nếu có
         console.error(error);
-        return res.status(500).json({ success: false, message: 'Đã xảy ra lỗi trong quá trình xử lý hình ảnh' })
+        return res.status(500).json({ 
+            success: false, message: 'Can not images Product' 
+        })
     }
 })
 

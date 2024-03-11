@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'); // Erase if already required
 
 // Declare the Schema of the Mongo model
-var oderSchema = new mongoose.Schema({
+var orderSchema = new mongoose.Schema({
     products:[{
         product: {type: mongoose.Types.ObjectId, ref: 'Product'},
         count: Number,
@@ -10,14 +10,18 @@ var oderSchema = new mongoose.Schema({
     status:{
         type:String,
         default:'Processing',
-        enum:['Cancelled', 'Processing', 'Successed'],
+        enum:['Cancelled', 'Processing', 'Succeed'],
     },
-    paymentIntent:{},
-    oderBy:{
+    total: Number,
+    coupon: {
+        type: mongoose.Types.ObjectId,
+        ref: 'coupon'
+    },
+    orderBy:{
         type:mongoose.Types.ObjectId,
-        ref: 'User',
+        ref: 'User'
     },
 });
 
 //Export the model
-module.exports = mongoose.model('Oder', oderSchema);
+module.exports = mongoose.model('Order', orderSchema);
