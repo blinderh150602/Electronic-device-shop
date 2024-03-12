@@ -4,29 +4,37 @@ const User = require('../models/user')
 const Coupon = require('../models/coupon')
 
 const createNewOrder = asyncHandler(async (req, res) => {
-    const { _id } = req.user._id
-    //const { _id } = req.params
+    const { _id } = req.user
     const { coupon } = req.body
-    const userCart = await User.findById(_id).select('cart').populate('cart.product', 'title price')
-    console.log(userCart)
+    let userCart = await User.findById(_id).select('cart').populate('cart.product', 'title price')
     //Tạo danh sách sản phẩm cho đơn hàng
     const products = userCart?.cart?.map(el => ({
-        product: el.product._id,//về id(tên sản phẩm)
+        product: el.product,//về id(tên sản phẩm)
         count: el.quantity,//về số lượng sp
         color: el.color//theo màu sắc
     }))
+    // Lọc ra sản phẩm hợp lệ (có giá)
+    const validProducts = products.filter(product => product.product && product.product.price)
     //Tổng giá trị đơn hàng-- giá sp* sl+ giá trị tích lũy mua hàng
-    let total = userCart?.cart?.reduce((sum, el) => el.product.price * el.quantity + sum, 0)
-    const createData = ({ products, total, orderBy: _id }) //await Order.create
+    let total = validProducts.reduce((sum, el) => el.product.price * el.count + sum, 0)
+    // Tạo đối tượng dữ liệu cho đơn hàng
+    const createData = {
+        products: validProducts,
+        total,
+        orderBy: _id
+    }
     //xử lý mã giảm giá(coupon)
     if (coupon) {
-        const selectdCoupon = await Coupon.findById(coupon)
-        // tỷ lệ giảm giá vào tổng giá trị của đơn hàng, (1 - giá thị trường /100) 
-        total = Math.round(total*(1- +selectdCoupon?.discount/100)/1000)*1000 || total//nếu mã lỗi giữ nguyên giá ban đầu
-        createData.total = total
-        createData.coupon = coupon
+        const selectedCoupon = await Coupon.findById(coupon)
+        if (selectedCoupon) {
+            // tỷ lệ giảm giá vào tổng giá trị của đơn hàng, (1 - giá thị trường /100) 
+            total = Math.round(total * (1 - selectedCoupon.discount / 100) / 1000) * 1000 || total//nếu mã lỗi giữ nguyên giá ban đầu
+            createData.total = total
+            createData.coupon = coupon
+        } else {
+            console.log('Coupon not found')
+        }
     }
-    console.log(total);
     const rs = await Order.create(createData)
     return res.json({
         success: rs ? true : false,
