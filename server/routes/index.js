@@ -6,6 +6,7 @@ const blog = require('./blog')
 const order = require('./order')
 const brand = require('./brand')
 const coupon = require('./coupon')
+const insert = require('./insert')
 const { notFound, errHandler } = require('../middlewares/errHandler')
 
 const initRoutes = (app) => {
@@ -17,6 +18,7 @@ const initRoutes = (app) => {
     app.use('/api/order', order)
     app.use('/api/brand', brand)
     app.use('/api/coupon', coupon)
+    app.use('/api/insert',insert)
 
 
     app.use(notFound)

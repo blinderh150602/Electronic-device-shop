@@ -10,11 +10,11 @@ var productSchema = new mongoose.Schema({
     slug: {
         type: String,
         required: true,
-        unique: true,
+        // unique: true,
         lowercase: true
     },
     description: {
-        type: String,
+        type: Array,
         required: true,
     },
     brand: {
@@ -25,10 +25,10 @@ var productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    category: {
-        type: mongoose.Types.ObjectId,
+    categories: [{ 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
-    },
+    }],
     quantity: {
         type: Number,
         default: 0
@@ -42,8 +42,8 @@ var productSchema = new mongoose.Schema({
     },
     color: {
         type: String,
-        enum: ['Black', 'Grown', 'Red']
-    },
+        enum: ['BLACK', 'BLACK LEATHER', 'MINERAL BLACK', 'QUITE BLACK', 'WHITE', 'DAZZLING WHITE', 'GOLD', 'CERAMIC', 'BROWN', 'RED', 'BLUE', 'YELLOW', 'GREEN', 'PINK', 'GRAY', 'SPACE GRAY', 'CARBON GRAY', 'SILVER']
+    },    
     ratings: [
         {
             star: { type: Number },
