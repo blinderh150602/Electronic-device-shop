@@ -39,13 +39,13 @@ const getProducts = asyncHandler(async (req, res) => {
 
     //Sorting
     //acb, efg =>[abc,efg]=> abc,efg.
-    if(req.query.sort){
+    if (req.query.sort) {
         const sortBy = req.query.sort.split(',').join(' ')
         queryCommand = queryCommand.sort(sortBy)
     }
     //Fields limiting
 
-    if(req.query.fields){
+    if (req.query.fields) {
         const fields = req.query.fields.split(',').join(' ')
         queryCommand = queryCommand.select(fields)
     }
@@ -57,7 +57,7 @@ const getProducts = asyncHandler(async (req, res) => {
     //+adqwe=> NaN
     const page = +req.query.page || 1
     const limit = +req.query.limit || process.env.LIMIT_PRODUCTS
-    const skip = (page -1) * limit
+    const skip = (page - 1) * limit
     queryCommand.skip(skip).limit(limit)
     //Execute query
     // Số lượng sp thỏa mãn điều kiện !== số lượng sản phẩm trả về 1 lần gọi API
@@ -104,7 +104,7 @@ const ratings = asyncHandler(async (req, res) => {
     const { _id } = req.user
     const { star, comment, pid } = req.body
     if (!star || !pid) throw new Error('Missing inputs')
-    
+
     const ratingProduct = await Product.findById(pid)
     if (!ratingProduct) {
         throw new Error('Product not found')
@@ -132,7 +132,7 @@ const ratings = asyncHandler(async (req, res) => {
     const updatedProduct = await Product.findById(pid)
     const ratingCount = updatedProduct.ratings.length
     const sumRatings = updatedProduct.ratings.reduce((sum, el) => sum + +el.star, 0)
-    updatedProduct.totalRatings = Math.round(sumRatings*10/ratingCount) / 10
+    updatedProduct.totalRatings = Math.round(sumRatings * 10 / ratingCount) / 10
 
     await updatedProduct.save()
 
@@ -142,21 +142,21 @@ const ratings = asyncHandler(async (req, res) => {
     })
 })
 const uploadImagesProduct = asyncHandler(async (req, res) => {
-    const {pid} = req.params
+    const { pid } = req.params
     try {
         if (!req.files) {
-            return res.status(400).json({ 
-                success: false, message: 'Missing inputs' 
+            return res.status(400).json({
+                success: false, message: 'Missing inputs'
             })
         }
-        const response = await Product.findByIdAndUpdate(pid, { $push: {images:{$each: req.files.map(el => el.path)}}}, {new: true})
-        return res.status(200).json({ 
-            success: true, message: 'Upload Success', files: req.files 
+        const response = await Product.findByIdAndUpdate(pid, { $push: { images: { $each: req.files.map(el => el.path) } } }, { new: true })
+        return res.status(200).json({
+            success: true, message: 'Upload Success', files: req.files
         })
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ 
-            success: false, message: 'Can not images Product' 
+        return res.status(500).json({
+            success: false, message: 'Can not images Product'
         })
     }
 })

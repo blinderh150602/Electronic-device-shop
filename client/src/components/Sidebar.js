@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react"
-import { apiGetCategories } from "../apis/app"
+import React from "react"
 import { NavLink } from 'react-router-dom'
 import { createSlug } from '../ultils/helpers'
 import { useSelector } from "react-redux"
@@ -8,7 +7,7 @@ const Sidebar = () => {
     const {categories} = useSelector(state => state.app)
     // console.log(categories)
     return (
-        <div className="flex flex-col border">
+        <div className="flex flex-col border-[20px] border-blue-200">
             {categories?.map(el => (
                 <NavLink
                     key={createSlug(el.title)}

@@ -28,7 +28,9 @@ const insertProduct = asyncHandler(async (req, res) => {
             quantity: Math.round(Math.random() * 1000),
             sold: Math.round(Math.random() * 100),
             images: productData.images,
-            color: color // Assign the color value to the color field
+            color: color, // Assign the color value to the color field
+            thumb: productData.thumb || 'default_thumb_url',
+            totalRatings: Math.floor(Math.random() * 5) + 1
         });
 
         await product.save();
