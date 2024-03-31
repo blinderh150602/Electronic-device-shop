@@ -1,10 +1,13 @@
 import React, { useState, useEffect, memo } from "react";
 import icons from "../ultils/icons";
 import { apiGetProducts } from "../apis/product";
-import { renderStarFromNumber, formatMoney } from '../ultils/helpers'
+import { renderStarFromNumber, formatMoney, secondsToHms } from '../ultils/helpers'
 import { CountDown } from './'
+import moment from "moment"
 
 const { FaStar, IoMenu } = icons
+
+let idInterval = null
 
 const DealDaily = () => {
     const [dealdaily, setDealdaily] = useState(null)
@@ -12,35 +15,41 @@ const DealDaily = () => {
     const [minute, setMinute] = useState(0)
     const [second, setSecond] = useState(0)
     const [expireTime, setExpireTime] = useState(false)
-    let idInterval = null // Khai báo idInterval ở mức độ phạm vi của component
 
     const fetchDealDaily = async () => {
         const respone = await apiGetProducts({ limit: 1, page: Math.round(Math.random() * 10), totalRatings: 5 })
         if (respone.success) {
             setDealdaily(respone.products[0])
-            setHour(1)
-            setMinute(2)
-            setSecond(2)
+            const today = ` ${moment().format('MM/DD/YYYY')} 5:00:00 `
+            const seconds = new Date(today).getTime() - new Date().getTime() + 24 * 3600 * 1000
+            const { h, m, s } = secondsToHms(seconds)
+            setHour(h)
+            setMinute(m)
+            setSecond(s)
+        } else {
+            setHour(0)
+            setMinute(59)
+            setSecond(59)
         }
     }
 
     useEffect(() => {
-        if (idInterval) clearInterval(idInterval) // Kiểm tra và xóa interval nếu đã tồn tại
-        fetchDealDaily();
+        if (idInterval) clearInterval(idInterval)
+        fetchDealDaily()
     }, [expireTime])
 
     useEffect(() => {
-        idInterval = setInterval(() => { // Đặt idInterval ở mức độ phạm vi của useEffect
+        idInterval = setInterval(() => {
             if (second > 0) setSecond(prev => prev - 1)
             else {
                 if (minute > 0) {
                     setMinute(prev => prev - 1)
-                    setSecond(2)
+                    setSecond(59)
                 } else {
                     if (hour > 0) {
                         setHour(prev => prev - 1)
-                        setMinute(2)
-                        setSecond(2)
+                        setMinute(59)
+                        setSecond(59)
                     } else {
                         setExpireTime(!expireTime)
                     }
@@ -66,7 +75,9 @@ const DealDaily = () => {
                 />
                 <div className="pt-9 flex-8 font-bold text-[20px] text-gray-700">
                     <span className="line-clamp-1 flex justify-center">{dealdaily?.title}</span>
-                    <span className="flex flex justify-center">{renderStarFromNumber(dealdaily?.totalRatings, 25)}</span>
+                    <span className="flex flex justify-center">{renderStarFromNumber(dealdaily?.totalRatings, 25)?.map((el, index) => (
+                        <span key={index}>{el}</span>
+                    ))}</span>
                     <span className="flex justify-center pt-2">{`${formatMoney(dealdaily?.price)}VND`}</span></div>
             </div>
             <div className="px-4 mt-8">
